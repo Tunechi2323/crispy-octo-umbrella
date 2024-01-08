@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lowest-version-tests:
+    name: Build lowest version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: bcmath, gmp, intl, dom, mbstring
+
+      - name: Setup Problem Matchers for PHPUnit
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up locales
+        run: ./hack/setup-locales.sh
+
+      - name: Download dependencies
+        run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress --no-suggest --prefer-lowest --classmap-authoritative
+
+      - name: Run tests
+        run: composer test
+
+  tests:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php:
+          - '8.0'
+          - '8.1'
+          - '8.2'
+          - '8.3'
+
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: bcmath, gmp, intl, dom, mbstring
+          ini-values: zend.assertions=1
+
+      - name: Setup Problem Matchers for PHPUnit
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up locales
+        run: ./hack/setup-locales.sh
+
+      - name: Download dependencies
+        run: composer install --classmap-authoritative
+
+      - name: Run tests
+        run: composer test
+
+  psalm:
+    name: Psalm
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: bcmath, gmp, intl, dom, mbstring
+
+      - name: Download dependencies
+        run: composer install --classmap-authoritative
+
+      - name: Psalm
+        run: vendor/bin/psalm
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install enchant-2
+          pip install --user -r doc/requirements.txt
+
+      - name: Build docs
+        run: |
+          export PATH="/home/runner/.local/bin:$PATH"
+          make -C doc SPHINXOPTS='-nW' html
+          make -C doc spelling
