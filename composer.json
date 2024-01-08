@@ -1,0 +1,40 @@
+{
+    "name": "mathiasverraes/money",
+    "description": "PHP implementation of Fowler's Money pattern",
+    "type": "library",
+    "keywords": [ "Money", "Value Object", "Generic Sub-domain" ],
+    "homepage": "http://verraes.net/2011/04/fowler-money-pattern-in-php/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mathias Verraes",
+            "email": "mathias@verraes.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.3.x-dev"
+        }
+    },
+    "autoload": {
+        "psr-0": {
+            "Money": "lib"
+        }
+    },
+
+    "config": {
+        "bin-dir": "bin"
+    },
+    "suggest": {
+        "TheBigBrainsCompany/TbbcMoneyBundle": "Very complete Symfony2 bundle with support for Twig, Doctrine, Forms, ...", 
+        "pink-tie/money-bundle": "Pink-Tie's Symfony2 integration with Money library",
+        "Sylius/SyliusMoneyBundle": "Sylius' Symfony2 integration with Money library"
+    },
+    "minimum-stability": "dev"
+}
